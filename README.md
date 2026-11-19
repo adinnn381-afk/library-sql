@@ -1,0 +1,116 @@
+[資料庫作業 (1).html](https://github.com/user-attachments/files/35092244/1.html)[Uploadi<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>資料庫查詢練習 · LIBRARY</title>
+<style>
+:root{--bg:#f6f7f4;--card:#fff;--tx:#1d2a28;--mu:#5d6b68;--ac:#0a7d6e;--bd:#d9dfdc;--ok:#157a3c;--er:#b3261e;--code:#f0f3f1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a19;--card:#1b2625;--tx:#e6efed;--mu:#9bb0ac;--ac:#3fc4b0;--bd:#2f3f3d;--ok:#5fd68a;--er:#ff8a80;--code:#142020;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121a19;--card:#1b2625;--tx:#e6efed;--mu:#9bb0ac;--ac:#3fc4b0;--bd:#2f3f3d;--ok:#5fd68a;--er:#ff8a80;--code:#142020;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 -apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif}
+header{padding:16px 20px;border-bottom:1px solid var(--bd);background:var(--card)}
+h1{margin:0;font-size:20px}h1 small{color:var(--mu);font-weight:400;font-size:13px;margin-left:8px}
+h2{font-size:16px;margin:0 0 8px}
+.wrap{display:grid;grid-template-columns:1fr;gap:16px;padding:16px 20px;max-width:1200px;margin:auto}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:7px 8px;color:var(--tx);cursor:pointer;font:inherit}
+nav button:hover{background:var(--code)}nav button.on{background:var(--ac);color:#fff}
+textarea{width:100%;min-height:150px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--code);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:10px;resize:vertical}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:8px 16px;cursor:pointer;font:inherit;margin:8px 8px 0 0}
+.btn.s{background:var(--code);color:var(--tx);border:1px solid var(--bd)}
+.sc{overflow-x:auto}table{border-collapse:collapse;font-size:13px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:4px 8px;text-align:left;white-space:nowrap}th{background:var(--code)}
+.pk{color:var(--ac);font-weight:700;font-size:11px}.fk{color:#c26a00;font-weight:700;font-size:11px}
+.tbls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.tbls div{border:1px solid var(--bd);border-radius:8px;padding:8px;font-size:13px}.tbls b{color:var(--ac)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:800px){.two{grid-template-columns:1fr}}.two>div{overflow-x:auto}h3{font-size:14px;margin:6px 0}pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:8px;font-size:13px;overflow-x:auto;margin:6px 0}ul.pl{margin:6px 0 10px;padding-left:20px}.tab{display:inline-block;margin:0 6px 8px 0}#erd svg{width:100%;max-width:640px;height:auto}
+.st{margin:8px 0;font-weight:600}.ok{color:var(--ok)}.er{color:var(--er)}.mu{color:var(--mu);font-size:13px}
+</style></head><body>
+<header><h1>LIBRARY 查詢練習<small>圖書館借閱系統 · 4 張資料表 · SQLite（瀏覽器內執行）</small></h1></header>
+<div class="wrap">
+<nav style="display:none"><div id="nav"></div></nav>
+<main>
+<div class="card"><p class="mu" style="margin:0 0 10px">因此建立 LIBRARY 資料庫，把分館、圖書、會員、借閱紀錄整合，再用 SQL 查出答案。</p>
+<div class="tbls">
+<div><b>BRANCH</b> 分館<br><span class="pk">PK</span> branch_id<br>name, city</div>
+<div><b>BOOK</b> 圖書<br><span class="pk">PK</span> isbn<br>title, category, price, year<br><span class="fk">FK</span> branch_id → BRANCH</div>
+<div><b>MEMBER</b> 會員<br><span class="pk">PK</span> member_id<br>name, join_date<br><span class="fk">FK</span> branch_id → BRANCH</div>
+<div><b>LOAN</b> 借閱<br><span class="pk">PK</span> loan_id<br>loan_date, return_date<br><span class="fk">FK</span> member_id → MEMBER<br><span class="fk">FK</span> isbn → BOOK</div>
+</div></div>
+<div class="card"><h2>資料庫設計</h2><h3>ERD 關聯圖</h3><div id="erd" class="sc"></div><p class="mu">箭頭由外來鍵（FK）指向被參照的主鍵（PK）：一個分館有多本書、多位會員；一位會員可有多筆借閱；一本書可被借多次。</p><h3>欄位說明</h3><div class="sc" id="fld"></div><h3 style="margin-top:12px">樣本資料</h3><div id="stabs"></div><div class="sc" id="sdat"></div></div>
+<div class="card"><h2 id="qt"></h2><p class="mu" id="qd" style="margin:0 0 8px"></p>
+<textarea id="sql" spellcheck="false"></textarea>
+<button class="btn" id="run">執行</button><button class="btn s" id="rst">還原範例 SQL</button><button class="btn s" id="rdb">重設資料庫</button>
+<div class="st" id="stat">資料庫載入中…</div></div>
+<div class="card"><h2>預期結果</h2><div class="sc" id="exp"></div></div>
+<div class="card"><h2>實際結果</h2><div class="sc" id="act"><span class="mu">尚未執行</span></div></div>
+<div class="card"><h2>結果比較：改了 SQL，結果有什麼不同？</h2><div id="cmp"></div></div>
+</main></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-asm.js"></script>
+<script>
+var SCHEMA=`CREATE TABLE BRANCH(branch_id INTEGER PRIMARY KEY,name TEXT,city TEXT);
+CREATE TABLE BOOK(isbn TEXT PRIMARY KEY,title TEXT,category TEXT,price INTEGER,year INTEGER,branch_id INTEGER REFERENCES BRANCH(branch_id));
+CREATE TABLE MEMBER(member_id INTEGER PRIMARY KEY,name TEXT,join_date TEXT,branch_id INTEGER REFERENCES BRANCH(branch_id));
+CREATE TABLE LOAN(loan_id INTEGER PRIMARY KEY,member_id INTEGER REFERENCES MEMBER(member_id),isbn TEXT REFERENCES BOOK(isbn),loan_date TEXT,return_date TEXT);
+INSERT INTO BRANCH VALUES(1,'總館','台北'),(2,'東區分館','台中'),(3,'南區分館','高雄');
+INSERT INTO BOOK VALUES('B01','資料庫系統概論','資訊',620,2021,1),('B02','演算法入門','資訊',540,2019,1),('B03','三體','科幻',380,2008,1),('B04','活著','文學',320,1993,2),('B05','原子習慣','自我成長',420,2019,2),('B06','人類大歷史','歷史',500,2014,2),('B07','Python 資料分析','資訊',680,2022,3),('B08','小王子','文學',250,1943,3),('B09','沙丘','科幻',450,1965,3),('B10','國富論','經濟',590,1776,1);
+INSERT INTO MEMBER VALUES(1,'王小明','2020-03-15',1),(2,'林美華','2021-07-01',1),(3,'陳大文','2019-11-20',2),(4,'張雅婷','2022-01-10',2),(5,'李志強','2020-09-05',3),(6,'黃淑芬','2023-02-18',3),(7,'吳家豪','2021-12-25',1),(8,'周怡君','2022-06-30',2);
+INSERT INTO LOAN VALUES(1,1,'B01','2024-01-05','2024-01-19'),(2,1,'B03','2024-02-10','2024-02-24'),(3,2,'B01','2024-02-15','2024-03-01'),(4,2,'B05','2024-03-02',NULL),(5,3,'B04','2024-03-10','2024-03-25'),(6,3,'B06','2024-04-01',NULL),(7,4,'B05','2024-04-08','2024-04-20'),(8,5,'B07','2024-04-15','2024-04-30'),(9,5,'B09','2024-05-02',NULL),(10,5,'B08','2024-05-10','2024-05-22'),(11,6,'B07','2024-05-12',NULL),(12,7,'B02','2024-05-20','2024-06-03'),(13,7,'B01','2024-06-01',NULL),(14,1,'B07','2024-06-05','2024-06-18');`;
+var Q=[
+["基本查詢","列出價格高於 500 元的圖書，依價格由高到低排序。","SELECT title AS 書名, category AS 類別, price AS 價格\nFROM BOOK\nWHERE price > 500\nORDER BY price DESC;"],
+["聚合與分組","統計各類別圖書的數量與平均價格。","SELECT category AS 類別, COUNT(*) AS 冊數, ROUND(AVG(price),1) AS 平均價格\nFROM BOOK\nGROUP BY category\nORDER BY 冊數 DESC, 類別;"],
+["多表連接","列出每筆借閱紀錄的會員姓名、書名與借閱日期。","SELECT m.name AS 會員, b.title AS 書名, l.loan_date AS 借閱日\nFROM LOAN l\nJOIN MEMBER m ON l.member_id = m.member_id\nJOIN BOOK b ON l.isbn = b.isbn\nORDER BY l.loan_date;"],
+["NULL 判斷","列出尚未歸還的書籍與借閱人。","SELECT m.name AS 會員, b.title AS 書名, l.loan_date AS 借閱日\nFROM LOAN l\nJOIN MEMBER m ON l.member_id = m.member_id\nJOIN BOOK b ON l.isbn = b.isbn\nWHERE l.return_date IS NULL\nORDER BY l.loan_date;"],
+["外部連接","列出各分館的藏書冊數（沒有藏書的分館也要顯示）。","SELECT br.name AS 分館, COUNT(b.isbn) AS 藏書冊數\nFROM BRANCH br\nLEFT JOIN BOOK b ON b.branch_id = br.branch_id\nGROUP BY br.branch_id, br.name\nORDER BY br.branch_id;"],
+["HAVING","找出借閱次數至少 2 次的會員。","SELECT m.name AS 會員, COUNT(*) AS 借閱次數\nFROM MEMBER m\nJOIN LOAN l ON l.member_id = m.member_id\nGROUP BY m.member_id, m.name\nHAVING COUNT(*) >= 2\nORDER BY 借閱次數 DESC, 會員;"],
+["子查詢","列出價格高於全部圖書平均價格的書。","SELECT title AS 書名, price AS 價格\nFROM BOOK\nWHERE price > (SELECT AVG(price) FROM BOOK)\nORDER BY price DESC;"],
+["NOT EXISTS","找出從未被借閱過的圖書。","SELECT b.title AS 書名, b.category AS 類別\nFROM BOOK b\nWHERE NOT EXISTS (SELECT 1 FROM LOAN l WHERE l.isbn = b.isbn)\nORDER BY b.isbn;"]];
+var V=[
+["把 price > 500 改成 price >= 500",[["price > 500","price >= 500"]],"> 不含邊界值，>= 含邊界值。《人類大歷史》剛好 500 元，原本被排除，改後多出 1 列。"],
+["加上 HAVING COUNT(*) >= 2",[["ORDER BY","HAVING COUNT(*) >= 2\nORDER BY"]],"HAVING 在分組後才過濾，只留下冊數至少 2 的類別，只有 1 冊的類別（自我成長、歷史、經濟）被去掉。"],
+["INNER JOIN 改成以 MEMBER 為主的 LEFT JOIN",[["FROM LOAN l\nJOIN MEMBER m ON l.member_id = m.member_id\nJOIN BOOK b ON l.isbn = b.isbn","FROM MEMBER m\nLEFT JOIN LOAN l ON l.member_id = m.member_id\nLEFT JOIN BOOK b ON l.isbn = b.isbn"]],"INNER JOIN 只保留兩邊都對得上的資料；LEFT JOIN 會保留左表（會員）全部資料，沒借過書的周怡君也會出現，書名與借閱日顯示 NULL。"],
+["IS NULL 改成 IS NOT NULL",[["IS NULL","IS NOT NULL"]],"return_date 為 NULL 代表未歸還；改成 IS NOT NULL 就變成已歸還的紀錄。判斷 NULL 不能用 = NULL，必須用 IS。"],
+["加上 WHERE b.price > 500",[["GROUP BY","WHERE b.price > 500\nGROUP BY"]],"WHERE 在 LEFT JOIN 之後執行，會把 b 為 NULL 或價格不足的列濾掉，使 LEFT JOIN 的效果消失：東區分館沒有超過 500 元的書，整個分館就不見了。若要保留，應把條件放進 ON。"],
+["HAVING 門檻由 2 次改成 3 次",[[">= 2",">= 3"]],"門檻提高後，只剩借閱 3 次的王小明與李志強，其他人被過濾掉。"],
+["平均價格只計算「資訊」類圖書",[["(SELECT AVG(price) FROM BOOK)","(SELECT AVG(price) FROM BOOK WHERE category = '資訊')"]],"子查詢的比較基準由全部圖書平均（475 元）變成資訊類平均（約 613 元），門檻升高，只剩 620 與 680 元的兩本。"],
+["NOT EXISTS 子查詢多加條件：尚未歸還",[["WHERE l.isbn = b.isbn)","WHERE l.isbn = b.isbn AND l.return_date IS NULL)"]],"原本找「從未被借過」的書（只有《國富論》）；加上條件後變成「目前沒有未歸還借閱」的書，範圍擴大，曾被借過但已還的書也會出現。"]];
+function cmpReset(){$('cmp').innerHTML='<p class="mu">按下按鈕，會把本題的變化版 SQL 放進上方編輯區，並並排顯示兩者結果。</p><button class="btn" onclick="cmp()">載入變化版並比較</button>'}
+function nrow(r){return r.length?r[0].values.length:0}
+function cmp(){var v=V[cur],s=Q[cur][2],a,b;v[1].forEach(function(p){s=s.replace(p[0],p[1])});
+try{a=db.exec(Q[cur][2]);b=db.exec(s)}catch(e){$('cmp').textContent=e.message;return}
+$('sql').value=s;
+$('cmp').innerHTML='<p><b>修改內容：</b>'+esc(v[0])+'</p><pre>'+esc(s)+'</pre><div class="two"><div><h3>原 SQL（'+nrow(a)+' 列）</h3>'+tbl(a)+'</div><div><h3>變化版（'+nrow(b)+' 列）</h3>'+tbl(b)+'</div></div><p><b>為什麼不同：</b>'+esc(v[2])+'</p><p class="mu">變化版已放進編輯區，你可以再自行修改並按「執行」。</p><button class="btn s" onclick="cmpReset()">收合</button>'}
+var F='BRANCH|branch_id|INTEGER|PK|分館代號\nBRANCH|name|TEXT||分館名稱\nBRANCH|city|TEXT||所在城市\nBOOK|isbn|TEXT|PK|圖書編號\nBOOK|title|TEXT||書名\nBOOK|category|TEXT||類別\nBOOK|price|INTEGER||定價（元）\nBOOK|year|INTEGER||出版年\nBOOK|branch_id|INTEGER|FK|所屬分館 → BRANCH\nMEMBER|member_id|INTEGER|PK|會員編號\nMEMBER|name|TEXT||會員姓名\nMEMBER|join_date|TEXT||加入日期（YYYY-MM-DD）\nMEMBER|branch_id|INTEGER|FK|註冊分館 → BRANCH\nLOAN|loan_id|INTEGER|PK|借閱編號\nLOAN|member_id|INTEGER|FK|借閱會員 → MEMBER\nLOAN|isbn|TEXT|FK|借閱圖書 → BOOK\nLOAN|loan_date|TEXT|| 借出日期\nLOAN|return_date|TEXT||歸還日期；NULL 表示尚未歸還'.split('\n').map(function(l){return l.split('|')});
+function design(){var B={BRANCH:[20,10,['PK branch_id','name','city']],BOOK:[400,10,['PK isbn','title','category','price','year','FK branch_id']],MEMBER:[20,190,['PK member_id','name','join_date','FK branch_id']],LOAN:[400,190,['PK loan_id','FK member_id','FK isbn','loan_date','return_date']]};
+var s='<svg viewBox="0 0 620 320" xmlns="http://www.w3.org/2000/svg" font-size="13" fill="currentColor"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>';
+for(var n in B){var b=B[n],h=26+b[2].length*18+6;s+='<rect x="'+b[0]+'" y="'+b[1]+'" width="200" height="'+h+'" rx="6" fill="var(--card)" stroke="var(--ac)" stroke-width="1.5"/><rect x="'+b[0]+'" y="'+b[1]+'" width="200" height="24" rx="6" fill="var(--ac)"/><text x="'+(b[0]+10)+'" y="'+(b[1]+17)+'" fill="#fff" font-weight="700">'+n+'</text>';
+b[2].forEach(function(c,i){var y=b[1]+44+i*18,k=c.slice(0,2),f=(k=='PK'||k=='FK');s+='<text x="'+(b[0]+10)+'" y="'+y+'" '+(f?'font-weight="600"':'')+'>'+(f?'<tspan fill="'+(k=='PK'?'var(--ac)':'#c26a00')+'" font-size="11">'+k+'</tspan> '+c.slice(3):c)+'</text>'})}
+s+='<g stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"><line x1="400" y1="60" x2="222" y2="60"/><line x1="120" y1="190" x2="120" y2="94"/><line x1="400" y1="240" x2="222" y2="240"/><line x1="500" y1="190" x2="500" y2="146"/></g><g class="mu" font-size="11"><text x="260" y="52">branch_id</text><text x="128" y="150">branch_id</text><text x="260" y="232">member_id</text><text x="508" y="172">isbn</text></g></svg>';
+$('erd').innerHTML=s;
+$('fld').innerHTML='<table><tr><th>資料表</th><th>欄位</th><th>型別</th><th>鍵</th><th>說明</th></tr>'+F.map(function(r){return'<tr>'+r.map(function(x){return'<td>'+esc(x)+'</td>'}).join('')+'</tr>'}).join('')+'</table>';
+$('stabs').innerHTML=['BRANCH','BOOK','MEMBER','LOAN'].map(function(t){return'<button class="btn s tab" onclick="sample(\''+t+'\')">'+t+'</button>'}).join('')}
+var stb='BRANCH';
+function sample(t){if(t)stb=t;$('sdat').innerHTML=tbl(db.exec('SELECT * FROM '+stb))}
+var SQL,db,cur=0;
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c]})}
+function tbl(r){if(!r||!r.length)return'<span class="mu">（無資料列）</span>';var r0=r[0];
+return'<table><tr>'+r0.columns.map(function(c){return'<th>'+esc(c)+'</th>'}).join('')+'</tr>'+r0.values.map(function(v){return'<tr>'+v.map(function(x){return'<td>'+(x===null?'<i class="mu">NULL</i>':esc(x))+'</td>'}).join('')+'</tr>'}).join('')+'</table>'}
+function fresh(){db=new SQL.Database();db.run(SCHEMA);sample()}
+function show(i){cur=i;location.hash='q'+(i+1);$('qt').textContent='第 '+(i+1)+' 題 · '+Q[i][0];$('qd').textContent=Q[i][1];$('sql').value=Q[i][2];
+var b=$('nav').children;for(var k=0;k<b.length;k++)b[k].className=k==i?'on':'';
+var ref;try{ref=db.exec(Q[i][2]);$('exp').innerHTML=tbl(ref)}catch(e){$('exp').textContent=e.message}
+$('act').innerHTML='<span class="mu">尚未執行</span>';$('stat').textContent='';$('stat').className='st';cmpReset()}
+function run(){var st=$('stat');try{var r=db.exec($('sql').value);$('act').innerHTML=r.length?tbl(r):'<span class="mu">執行成功（無結果集）</span>';
+var ref=db.exec(Q[cur][2]);var same=JSON.stringify(r.map(function(x){return x.values}))==JSON.stringify(ref.map(function(x){return x.values}));
+st.textContent=same?'✔ 結果與預期相符':'結果與預期不同（可自由嘗試其他查詢）';st.className='st '+(same?'ok':'')}
+catch(e){$('act').innerHTML='';st.textContent='錯誤：'+e.message;st.className='st er'}}
+$('nav').innerHTML=Q.map(function(q,i){return'<button>'+(i+1)+'. '+q[0]+'</button>'}).join('');
+$('nav').onclick=function(e){var b=e.target.closest('button');if(!b)return;show([].indexOf.call($('nav').children,b))};
+$('run').onclick=run;$('rst').onclick=function(){$('sql').value=Q[cur][2]};
+$('rdb').onclick=function(){fresh();show(cur);$('stat').textContent='資料庫已重設'};
+$('sql').addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='Enter')run()});
+try{initSqlJs().then(function(s){SQL=s;fresh();design();var m=/^#q(\d+)$/.exec(location.hash);show(m&&Q[m[1]-1]?m[1]-1:0)})}
+catch(e){$('stat').textContent='載入失敗：'+e.message}
+</script></body></html>
+ng 資料庫作業 (1).html…]()
